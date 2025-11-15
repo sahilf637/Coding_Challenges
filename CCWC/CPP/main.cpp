@@ -1,14 +1,16 @@
 #include<iostream>
 #include<fstream>
 #include<string>
+#include<assert.h>
 
 using namespace std;
 
+string opt = "clwm";
 void countBytes(ifstream &file){
 
     file.seekg(0, ios::end);
     size_t size = file.tellg();
-    cout<<size<<" bytes\n";
+    cout<<size<<" ";
 
     file.seekg(0, ios::beg);
 
@@ -25,7 +27,10 @@ void countLines(ifstream &file){
     while(getline(file, line)){
         count++;
     }
-    cout<<count<<"\n";
+    cout<<count<<" ";
+
+    file.clear();
+    file.seekg(0, ios::beg);
 }
 
 void countWords(ifstream &file){
@@ -34,7 +39,9 @@ void countWords(ifstream &file){
     while(file >> word){
         ++count;
     }
-    cout<<count<<"\n";
+    cout<<count<<" ";
+    file.clear();
+    file.seekg(0, ios::beg);
 }
 
 void countCharacters(ifstream &file){
@@ -43,15 +50,23 @@ void countCharacters(ifstream &file){
     while(file >> word){
         count += word.size();
     }
-    cout<<count<<"\n";
+    cout<<count<<" ";
 }
 
 int main(int argc, char *argv[]){
-    if(argc < 3){
+    if(argc < 2){
         cout<<"Invalid arguments\n";
         return 1;
     }
-    ifstream file(argv[2]);
+    int idx = -1;
+    string fg = argv[1];
+    
+    assert(opt.find(fg[1]));
+    if((fg.size() == 2) && (fg[0] == '-') && (opt.find(fg[1]))){
+        idx = 0;
+    }
+
+    ifstream file(argv[idx + 2]);
     // assert(file.is_open());
     if(!file.is_open()){
         cout<<"Unable to open file";
@@ -59,7 +74,7 @@ int main(int argc, char *argv[]){
         exit(1);
     }
 
-    string param = argv[1];
+    string param = (idx == -1)?"-a":argv[1];
     switch (param[1])
     {
         case 'c':
@@ -78,10 +93,17 @@ int main(int argc, char *argv[]){
         countCharacters(file);
         break;
 
+        case 'a':
+        countBytes(file);
+        countLines(file);
+        countWords(file);
+        countCharacters(file);
+        break;
+
         default:
         cout<<"Some error\n";
     }
-    cout<<argv[2]<<"\n";
+    cout<<argv[idx + 2]<<"\n";
     file.close();
     return 0;
 }
